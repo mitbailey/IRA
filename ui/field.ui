@@ -565,7 +565,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="a_scale"/>
+             <widget class="QComboBox" name="scale"/>
             </item>
            </layout>
           </item>
@@ -591,7 +591,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="b_scale"/>
+             <widget class="QFrame" name="frame">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
