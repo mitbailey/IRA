@@ -564,6 +564,9 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QComboBox" name="a_scale"/>
+            </item>
            </layout>
           </item>
           <item>
@@ -586,6 +589,9 @@
                <string>Load B</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="b_scale"/>
             </item>
            </layout>
           </item>

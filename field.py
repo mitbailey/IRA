@@ -143,6 +143,17 @@ class Ui(QMainWindow):
         self.load_b_button.clicked.connect(self.SLOT_load_b_button)
         self.save_button.clicked.connect(self.SLOT_save_button)
 
+        # Combos
+        self.a_scale = self.findChild(QComboBox, "a_scale")
+        self.b_scale = self.findChild(QComboBox, "b_scale")
+
+        self.a_scale.currentIndexChanged.connect(self.SLOT_a_scale)
+        self.b_scale.currentIndexChanged.connect(self.SLOT_b_scale)
+
+        waoeih = ['1', '2', '4', '8', '16', '32']
+        self.a_scale.insertItems(len(waoeih), waoeih)
+        self.b_scale.insertItems(len(waoeih), waoeih)
+
         # Plots
         self.plot_a = MplCanvas(self, width=5, height=5, dpi=100)
         self.plot_b = MplCanvas(self, width=5, height=5, dpi=100)
@@ -216,6 +227,10 @@ class Ui(QMainWindow):
     def SLOT_load_b_button(self):
         pass
     def SLOT_save_button(self):
+        pass
+    def SLOT_a_scale(self):
+        pass
+    def SLOT_b_scale(self):
         pass
 
 if __name__ == '__main__':
