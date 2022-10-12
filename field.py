@@ -143,14 +143,17 @@ class Ui(QMainWindow):
         # Buttons
         self.load_a_button = self.findChild(QPushButton, "load_a_button")
         self.load_b_button = self.findChild(QPushButton, "load_b_button")
+        self.save_b_button = self.findChild(QPushButton, "save_b_button")
         self.save_button = self.findChild(QPushButton, "save_button")
         self.load_button = self.findChild(QPushButton, "load_button")
 
         self.load_a_button.clicked.connect(self.SLOT_load_a_button)
         self.load_b_button.clicked.connect(self.SLOT_load_b_button)
+        self.save_b_button.clicked.connect(self.SLOT_save_b_button)
         self.save_button.clicked.connect(self.SLOT_save_button)
         self.load_button.clicked.connect(self.SLOT_load_button)
 
+        self.save_b_button.setEnabled(False)
         self.load_button.setEnabled(False)
 
         # Combos
@@ -279,7 +282,15 @@ class Ui(QMainWindow):
             self.img_b = TransformImage(fname, 1)
         self.a_scale.setEnabled(True)
         self.load_button.setEnabled(True)
+        self.save_b_button.setEnabled(True)
         self.update_plots()
+
+    def SLOT_save_b_button(self):
+        fname, _ = QFileDialog.getSaveFileName(
+            self, "Save Image"
+        )
+        if self.img_b is not None:
+            self.img_b.save_image(fname)
 
     def SLOT_save_button(self):
         fname, _ = QFileDialog.getSaveFileName(
