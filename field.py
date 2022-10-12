@@ -264,6 +264,8 @@ class Ui(QMainWindow):
     def SLOT_reset(self):
         if self.img_b is not None:
             self.img_b.reset()
+        if self.img_a is not None:
+            self.img_a.reset()
         self.update_plots()
 
     def SLOT_load_a_button(self):
@@ -315,6 +317,7 @@ class Ui(QMainWindow):
         if self.img_b is not None:
             self.img_b.load_transforms(fname)
         self.img_a.supersample(self.img_b.samplerate)
+        self.update_plots()
 
     def SLOT_a_scale(self):
         idx = self.a_scale.currentIndex()
