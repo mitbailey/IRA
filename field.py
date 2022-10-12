@@ -70,7 +70,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def update_plots(self, data):
         self.axes.cla()
-        self.axes.imshow(data, origin='lower')
+        self.axes.imshow(data, origin='lower', animated=True)
         self.axes.axis('off')
         self.draw()
         return
@@ -84,6 +84,9 @@ class Ui(QMainWindow):
         args = self.application.arguments()
         super(Ui, self).__init__()
         uic.loadUi(uiresource, self)
+
+        self.img_a: TransformImage = None
+        self.img_b: TransformImage = None
 
         self.setWindowTitle("Image Realignment Assistant v0.1")
 
@@ -110,8 +113,11 @@ class Ui(QMainWindow):
         self.zoom_spin = self.findChild(QDoubleSpinBox, "zoom_spin")
 
         self.steps_spin.valueChanged.connect(self.SLOT_steps_spin)
+        self.steps_spin.setRange(0, 1024)
         self.angle_spin.valueChanged.connect(self.SLOT_angle_spin)
+        self.angle_spin.setRange(0, 180)
         self.zoom_spin.valueChanged.connect(self.SLOT_zoom_spin)
+        self.zoom_spin.setRange(0.01, 10)
 
         # Control Panel
         self.rotate_left = self.findChild(QPushButton, "rotate_left")
@@ -138,21 +144,22 @@ class Ui(QMainWindow):
         self.load_a_button = self.findChild(QPushButton, "load_a_button")
         self.load_b_button = self.findChild(QPushButton, "load_b_button")
         self.save_button = self.findChild(QPushButton, "save_button")
+        self.load_button = self.findChild(QPushButton, "load_button")
 
         self.load_a_button.clicked.connect(self.SLOT_load_a_button)
         self.load_b_button.clicked.connect(self.SLOT_load_b_button)
         self.save_button.clicked.connect(self.SLOT_save_button)
+        self.load_button.clicked.connect(self.SLOT_load_button)
+
+        self.load_button.setEnabled(False)
 
         # Combos
-        self.a_scale = self.findChild(QComboBox, "a_scale")
-        self.b_scale = self.findChild(QComboBox, "b_scale")
-
+        self.a_scale: QComboBox = self.findChild(QComboBox, "scale")
+        self.a_scale.setEnabled(False)
         self.a_scale.currentIndexChanged.connect(self.SLOT_a_scale)
-        self.b_scale.currentIndexChanged.connect(self.SLOT_b_scale)
 
-        waoeih = ['1', '2', '4', '8', '16', '32']
-        self.a_scale.insertItems(len(waoeih), waoeih)
-        self.b_scale.insertItems(len(waoeih), waoeih)
+        scalars = ['1', '2', '4', '8', '16', '32']
+        self.a_scale.insertItems(len(scalars), scalars)
 
         # Plots
         self.plot_a = MplCanvas(self, width=5, height=5, dpi=100)
@@ -187,10 +194,12 @@ class Ui(QMainWindow):
         layout.addWidget(self.nav_ab)
         self.ab_toolbar.setLayout(layout)
 
+        self.zoom = 1 # not zoomed
+
         data = np.random.random((1024,1024))
         self.plot_a.update_plots(data)
 
-        data = np.random.random((1024,1024))
+        data = np.zeros((1024, 1024))
         self.plot_b.update_plots(data)
 
         data = np.random.random((1024,1024))
@@ -200,38 +209,108 @@ class Ui(QMainWindow):
 
     def SLOT_steps_spin(self):
         pass
+
     def SLOT_angle_spin(self):
         pass
+
     def SLOT_zoom_spin(self):
         pass
+    
     def SLOT_rotate_left(self):
-        pass
+        ang = self.angle_spin.value()
+        if self.img_b is not None:
+            self.img_b.rotate(ang)
+        self.update_plots()
+
     def SLOT_rotate_right(self):
-        pass
+        ang = -self.angle_spin.value()
+        if self.img_b is not None:
+            self.img_b.rotate(ang)
+        self.update_plots()
+
     def SLOT_translate_up(self):
-        pass
+        if self.img_b is not None:
+            self.img_b.translate(ty=self.steps_spin.value())
+        self.update_plots()
+
     def SLOT_translate_left(self):
-        pass
+        if self.img_b is not None:
+            self.img_b.translate(tx=-self.steps_spin.value())
+        self.update_plots()
+
     def SLOT_translate_right(self):
-        pass
+        if self.img_b is not None:
+            self.img_b.translate(tx=self.steps_spin.value())
+        self.update_plots()
+
     def SLOT_translate_down(self):
-        pass
+        if self.img_b is not None:
+            self.img_b.translate(ty=-self.steps_spin.value())
+        self.update_plots()
+
     def SLOT_zoom_out(self):
-        pass
+        if self.img_b is not None:
+            self.img_b.squeeze(self.zoom_spin.value())
+        self.update_plots()
+
     def SLOT_zoom_in(self):
-        pass
+        if self.img_b is not None:
+            self.img_b.squeeze(self.zoom_spin.value())
+        self.update_plots()
+
     def SLOT_reset(self):
-        pass
+        if self.img_b is not None:
+            self.img_b.reset()
+        self.update_plots()
+
     def SLOT_load_a_button(self):
-        pass
+        fname, _ = QFileDialog.getOpenFileName(
+            self, "Load Reference Image")
+        fileInfo = QFileInfo(fname)
+        if fileInfo.exists():
+            self.img_a = TransformImage(fname, 1)
+        self.update_plots()
+
     def SLOT_load_b_button(self):
-        pass
+        fname, _ = QFileDialog.getOpenFileName(
+            self, "Load Image")
+        fileInfo = QFileInfo(fname)
+        if fileInfo.exists():
+            self.img_b = TransformImage(fname, 1)
+        self.a_scale.setEnabled(True)
+        self.load_button.setEnabled(True)
+        self.update_plots()
+
     def SLOT_save_button(self):
-        pass
+        fname, _ = QFileDialog.getSaveFileName(
+            self, "Save Commands")
+        if self.img_b is not None:
+            self.img_b.save_transforms(fname)
+
+    def SLOT_load_button(self):
+        fname, _ = QFileDialog.getOpenFileName(
+            self, 'Load Commands'
+        )
+        if self.img_b is not None:
+            self.img_b.load_transforms(fname)
+        self.img_a.supersample(self.img_b.samplerate)
+
     def SLOT_a_scale(self):
-        pass
-    def SLOT_b_scale(self):
-        pass
+        idx = self.a_scale.currentIndex()
+        if self.img_a is not None:
+            self.img_a.supersample(2**idx)
+        if self.img_b is not None:
+            self.img_b.supersample(2**idx)
+
+        self.update_plots()
+
+    def update_plots(self):
+        if self.img_a is not None:
+            self.plot_a.update_plots(self.img_a.data)
+        if self.img_b is not None:
+            self.plot_b.update_plots(self.img_b.data)
+        if self.img_a is not None and self.img_b is not None:
+            self.plot_ab.update_plots(np.abs(self.img_a.data - self.img_b.data))
 
 if __name__ == '__main__':
     application = QApplication(sys.argv)
