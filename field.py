@@ -70,7 +70,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def update_plots(self, data):
         self.axes.cla()
-        self.axes.imshow(data, origin='lower', animated=True)
+        self.axes.imshow(data, origin='upper', animated=True)
         self.axes.axis('off')
         self.draw()
         return
@@ -272,6 +272,8 @@ class Ui(QMainWindow):
         fileInfo = QFileInfo(fname)
         if fileInfo.exists():
             self.img_a = TransformImage(fname, 1)
+        else:
+            return
         self.update_plots()
 
     def SLOT_load_b_button(self):
@@ -280,6 +282,8 @@ class Ui(QMainWindow):
         fileInfo = QFileInfo(fname)
         if fileInfo.exists():
             self.img_b = TransformImage(fname, 1)
+        else:
+            return
         self.a_scale.setEnabled(True)
         self.load_button.setEnabled(True)
         self.save_b_button.setEnabled(True)
@@ -289,12 +293,16 @@ class Ui(QMainWindow):
         fname, _ = QFileDialog.getSaveFileName(
             self, "Save Image"
         )
+        if fname == '':
+            return
         if self.img_b is not None:
             self.img_b.save_image(fname)
 
     def SLOT_save_button(self):
         fname, _ = QFileDialog.getSaveFileName(
             self, "Save Commands")
+        if fname == '':
+            return
         if self.img_b is not None:
             self.img_b.save_transforms(fname)
 
@@ -302,6 +310,8 @@ class Ui(QMainWindow):
         fname, _ = QFileDialog.getOpenFileName(
             self, 'Load Commands'
         )
+        if fname == '':
+            return
         if self.img_b is not None:
             self.img_b.load_transforms(fname)
         self.img_a.supersample(self.img_b.samplerate)
