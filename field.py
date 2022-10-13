@@ -273,7 +273,7 @@ class Ui(QMainWindow):
             self, "Load Reference Image")
         fileInfo = QFileInfo(fname)
         if fileInfo.exists():
-            self.img_a = TransformImage(fname, 1)
+            self.img_a = TransformImage.fromfile(fname, 1)
         else:
             return
         self.update_plots()
@@ -283,7 +283,7 @@ class Ui(QMainWindow):
             self, "Load Image")
         fileInfo = QFileInfo(fname)
         if fileInfo.exists():
-            self.img_b = TransformImage(fname, 1)
+            self.img_b = TransformImage.fromfile(fname, 1)
         else:
             return
         self.a_scale.setEnabled(True)
