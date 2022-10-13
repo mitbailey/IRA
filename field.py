@@ -238,12 +238,12 @@ class Ui(QMainWindow):
 
     def SLOT_translate_left(self):
         if self.img_b is not None:
-            self.img_b.translate(tx=-self.steps_spin.value())
+            self.img_b.translate(tx=self.steps_spin.value())
         self.update_plots()
 
     def SLOT_translate_right(self):
         if self.img_b is not None:
-            self.img_b.translate(tx=self.steps_spin.value())
+            self.img_b.translate(tx=-self.steps_spin.value())
         self.update_plots()
 
     def SLOT_translate_down(self):
