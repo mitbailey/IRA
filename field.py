@@ -59,10 +59,16 @@ class NavigationToolbar(NavigationToolbar2QT):
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi, tight_layout = True)
+        self.cid = fig.canvas.mpl_connect('button_press_event', self.onclick)
         self.parent = weakref.proxy(parent)
         self.axes = fig.add_subplot(111)
         self.axes.set_frame_on(False)
         super(MplCanvas, self).__init__(fig)
+    
+    def onclick(self, event):
+        print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+          ('double' if event.dblclick else 'single', event.button,
+           event.x, event.y, event.xdata, event.ydata))
 
     def get_toolbar(self, parent) -> NavigationToolbar:
         self.toolbar = NavigationToolbar(self, parent)
